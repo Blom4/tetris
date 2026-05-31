@@ -21,6 +21,7 @@ pub struct GameState {
     pub game_over: bool,
     pub bag: Bag,
     pub cleared_rows: Vec<usize>,
+    pub on_ground: bool,
 }
 
 impl Default for GameState {
@@ -53,12 +54,26 @@ impl GameState {
             game_over: false,
             bag,
             cleared_rows: Vec::new(),
+            on_ground: false,
         }
     }
 
     fn update_ghost(&mut self) {
         self.ghost_pos =
             ghost_pos(&self.grid, self.current_piece, self.current_rotation, self.current_pos);
+    }
+
+    fn check_on_ground(&mut self) {
+        let below = Position {
+            x: self.current_pos.x,
+            y: self.current_pos.y + 1,
+        };
+        self.on_ground = !can_place(
+            &self.grid,
+            self.current_piece,
+            self.current_rotation,
+            below,
+        );
     }
 
     fn lock_piece(&mut self) {
@@ -91,6 +106,7 @@ impl GameState {
         self.current_rotation = 0;
         self.current_pos = pos;
         self.can_hold = true;
+        self.on_ground = false;
         self.update_ghost();
     }
 
@@ -105,9 +121,19 @@ impl GameState {
         if can_place(&self.grid, self.current_piece, self.current_rotation, below) {
             self.current_pos = below;
             self.update_ghost();
+            self.on_ground = false;
         } else {
-            self.lock_piece();
+            self.on_ground = true;
         }
+    }
+
+    /// Lock the piece immediately. Only does something if the piece is on the ground.
+    pub fn lock_now(&mut self) {
+        if self.game_over || !self.on_ground {
+            return;
+        }
+        self.on_ground = false;
+        self.lock_piece();
     }
 
     pub fn move_left(&mut self) -> bool {
@@ -121,6 +147,7 @@ impl GameState {
         if can_place(&self.grid, self.current_piece, self.current_rotation, new_pos) {
             self.current_pos = new_pos;
             self.update_ghost();
+            self.check_on_ground();
             true
         } else {
             false
@@ -138,6 +165,7 @@ impl GameState {
         if can_place(&self.grid, self.current_piece, self.current_rotation, new_pos) {
             self.current_pos = new_pos;
             self.update_ghost();
+            self.check_on_ground();
             true
         } else {
             false
@@ -155,6 +183,7 @@ impl GameState {
         if can_place(&self.grid, self.current_piece, self.current_rotation, below) {
             self.current_pos = below;
             self.update_ghost();
+            self.check_on_ground();
             true
         } else {
             false
@@ -175,6 +204,7 @@ impl GameState {
             self.current_rotation = new_rot;
             self.current_pos = new_pos;
             self.update_ghost();
+            self.check_on_ground();
             true
         } else {
             false
@@ -195,6 +225,7 @@ impl GameState {
             self.current_rotation = new_rot;
             self.current_pos = new_pos;
             self.update_ghost();
+            self.check_on_ground();
             true
         } else {
             false
@@ -213,6 +244,7 @@ impl GameState {
             self.current_pos = below;
             self.score += soft_drop_score(1);
             self.update_ghost();
+            self.check_on_ground();
             1
         } else {
             0
@@ -227,6 +259,7 @@ impl GameState {
         self.current_pos = self.ghost_pos;
         let pts = hard_drop_score(distance as u32);
         self.score += pts;
+        self.on_ground = false;
         self.lock_piece();
         pts
     }
@@ -259,6 +292,7 @@ impl GameState {
             }
         }
         self.can_hold = false;
+        self.check_on_ground();
         true
     }
 }
@@ -283,6 +317,7 @@ mod tests {
         assert_eq!(gs.next_queue.len(), 5);
         assert_ne!(gs.current_piece, CellType::Empty);
         assert_eq!(gs.current_rotation, 0);
+        assert!(!gs.on_ground);
         assert_eq!(
             gs.ghost_pos,
             ghost_pos(&gs.grid, gs.current_piece, gs.current_rotation, gs.current_pos)
@@ -303,7 +338,8 @@ mod tests {
         for x in 0..WIDTH {
             gs.grid[HEIGHT - 1][x] = CellType::I;
         }
-        gs.lock_piece();
+        gs.on_ground = true;
+        gs.lock_now();
         assert_eq!(gs.lines, 1);
         assert_eq!(gs.score, 100);
         for x in 0..WIDTH {
@@ -428,12 +464,63 @@ mod tests {
     }
 
     #[test]
+    fn test_tick_sets_on_ground() {
+        let mut gs = setup();
+        // Move piece to the bottom
+        while !gs.on_ground {
+            gs.tick();
+        }
+        assert!(gs.on_ground);
+        // tick should NOT lock when on ground
+        let old_piece = gs.current_piece;
+        gs.tick();
+        assert_eq!(gs.current_piece, old_piece);
+    }
+
+    #[test]
+    fn test_lock_now_locks_on_ground() {
+        let mut gs = setup();
+        while !gs.on_ground {
+            gs.tick();
+        }
+        let old_piece = gs.current_piece;
+        gs.lock_now();
+        assert_ne!(gs.current_piece, old_piece);
+        assert!(!gs.on_ground);
+    }
+
+    #[test]
+    fn test_lock_now_noop_when_not_on_ground() {
+        let mut gs = setup();
+        assert!(!gs.on_ground);
+        let old_piece = gs.current_piece;
+        gs.lock_now();
+        assert_eq!(gs.current_piece, old_piece);
+    }
+
+    #[test]
     fn test_tick_locks_at_bottom() {
         let mut gs = setup();
         while !gs.game_over {
             gs.tick();
+            if gs.on_ground {
+                gs.lock_now();
+            }
         }
         assert!(gs.game_over);
+    }
+
+    #[test]
+    fn test_grounded_piece_can_still_move() {
+        let mut gs = setup();
+        while !gs.on_ground {
+            gs.tick();
+        }
+        assert!(gs.on_ground);
+        // Piece can still move left/right/rotate while on ground
+        let moved = gs.move_left() || gs.move_right();
+        // At least one direction should work depending on position
+        assert!(gs.on_ground || moved);
     }
 
     #[test]

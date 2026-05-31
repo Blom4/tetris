@@ -68,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 908539395;
+  int get rustContentHash => 111228997;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -85,6 +85,8 @@ abstract class RustLibApi extends BaseApi {
   GameStateView crateApiGameGameHold({required GameStateView gsv});
 
   GameStateView crateApiGameGameInit();
+
+  GameStateView crateApiGameGameLockNow({required GameStateView gsv});
 
   GameStateView crateApiGameGameMoveDown({required GameStateView gsv});
 
@@ -182,13 +184,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "game_init", argNames: []);
 
   @override
-  GameStateView crateApiGameGameMoveDown({required GameStateView gsv}) {
+  GameStateView crateApiGameGameLockNow({required GameStateView gsv}) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_game_state_view(gsv, serializer);
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameLockNowConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameLockNowConstMeta =>
+      const TaskConstMeta(debugName: "game_lock_now", argNames: ["gsv"]);
+
+  @override
+  GameStateView crateApiGameGameMoveDown({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_game_state_view,
@@ -211,7 +236,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_game_state_view(gsv, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_game_state_view,
@@ -234,7 +259,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_game_state_view(gsv, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_game_state_view,
@@ -257,7 +282,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_game_state_view(gsv, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_game_state_view,
@@ -280,7 +305,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_game_state_view(gsv, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_game_state_view,
@@ -303,7 +328,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_game_state_view(gsv, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 10)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_game_state_view,
@@ -326,7 +351,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_game_state_view(gsv, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 10)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 11)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_game_state_view,
@@ -349,7 +374,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(name, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 11)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 12)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_String,
@@ -374,7 +399,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 12,
+            funcId: 13,
             port: port_,
           );
         },
@@ -426,8 +451,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   GameStateView dco_decode_game_state_view(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 17)
-      throw Exception('unexpected arr length: expect 17 but see ${arr.length}');
+    if (arr.length != 18)
+      throw Exception('unexpected arr length: expect 18 but see ${arr.length}');
     return GameStateView(
       grid: dco_decode_list_cell_type(arr[0]),
       currentPiece: dco_decode_cell_type(arr[1]),
@@ -446,6 +471,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       bagQueue: dco_decode_list_cell_type(arr[14]),
       bagRng: dco_decode_i_64(arr[15]),
       clearedRows: dco_decode_list_prim_i_32_strict(arr[16]),
+      onGround: dco_decode_bool(arr[17]),
     );
   }
 
@@ -557,6 +583,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_bagQueue = sse_decode_list_cell_type(deserializer);
     var var_bagRng = sse_decode_i_64(deserializer);
     var var_clearedRows = sse_decode_list_prim_i_32_strict(deserializer);
+    var var_onGround = sse_decode_bool(deserializer);
     return GameStateView(
       grid: var_grid,
       currentPiece: var_currentPiece,
@@ -575,6 +602,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       bagQueue: var_bagQueue,
       bagRng: var_bagRng,
       clearedRows: var_clearedRows,
+      onGround: var_onGround,
     );
   }
 
@@ -703,6 +731,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_list_cell_type(self.bagQueue, serializer);
     sse_encode_i_64(self.bagRng, serializer);
     sse_encode_list_prim_i_32_strict(self.clearedRows, serializer);
+    sse_encode_bool(self.onGround, serializer);
   }
 
   @protected

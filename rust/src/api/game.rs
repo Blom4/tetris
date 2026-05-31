@@ -23,6 +23,7 @@ pub struct GameStateView {
     pub bag_queue: Vec<CellType>,
     pub bag_rng: i64,
     pub cleared_rows: Vec<i32>,
+    pub on_ground: bool,
 }
 
 fn flatten_grid(grid: &Grid) -> Vec<CellType> {
@@ -63,6 +64,7 @@ impl From<GameState> for GameStateView {
             bag_queue: gs.bag.remaining().to_vec(),
             bag_rng: gs.bag.rng_seed() as i64,
             cleared_rows: gs.cleared_rows.iter().map(|&r| r as i32).collect(),
+            on_ground: gs.on_ground,
         }
     }
 }
@@ -90,6 +92,7 @@ impl From<GameStateView> for GameState {
             game_over: v.game_over,
             bag: Bag::from_parts(v.bag_queue, v.bag_rng as u64),
             cleared_rows: Vec::new(),
+            on_ground: v.on_ground,
         }
     }
 }
@@ -108,6 +111,11 @@ pub fn game_init() -> GameStateView {
 #[flutter_rust_bridge::frb(sync)]
 pub fn game_tick(gsv: GameStateView) -> GameStateView {
     update(gsv, |gs| gs.tick())
+}
+
+#[flutter_rust_bridge::frb(sync)]
+pub fn game_lock_now(gsv: GameStateView) -> GameStateView {
+    update(gsv, |gs| gs.lock_now())
 }
 
 #[flutter_rust_bridge::frb(sync)]

@@ -15,6 +15,9 @@ GameStateView gameInit() => RustLib.instance.api.crateApiGameGameInit();
 GameStateView gameTick({required GameStateView gsv}) =>
     RustLib.instance.api.crateApiGameGameTick(gsv: gsv);
 
+GameStateView gameLockNow({required GameStateView gsv}) =>
+    RustLib.instance.api.crateApiGameGameLockNow(gsv: gsv);
+
 GameStateView gameMoveLeft({required GameStateView gsv}) =>
     RustLib.instance.api.crateApiGameGameMoveLeft(gsv: gsv);
 
@@ -59,6 +62,7 @@ class GameStateView {
   final List<CellType> bagQueue;
   final PlatformInt64 bagRng;
   final Int32List clearedRows;
+  final bool onGround;
 
   const GameStateView({
     required this.grid,
@@ -78,6 +82,7 @@ class GameStateView {
     required this.bagQueue,
     required this.bagRng,
     required this.clearedRows,
+    required this.onGround,
   });
 
   @override
@@ -98,7 +103,8 @@ class GameStateView {
       gameOver.hashCode ^
       bagQueue.hashCode ^
       bagRng.hashCode ^
-      clearedRows.hashCode;
+      clearedRows.hashCode ^
+      onGround.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -121,5 +127,6 @@ class GameStateView {
           gameOver == other.gameOver &&
           bagQueue == other.bagQueue &&
           bagRng == other.bagRng &&
-          clearedRows == other.clearedRows;
+          clearedRows == other.clearedRows &&
+          onGround == other.onGround;
 }

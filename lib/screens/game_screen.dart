@@ -20,6 +20,8 @@ class _GameScreenState extends State<GameScreen>
   late GameStateView _state;
   late Ticker _ticker;
   Duration _accumulated = Duration.zero;
+  Duration _lockAccumulated = Duration.zero;
+  static const _lockDelay = Duration(milliseconds: 500);
 
   Timer? _repeatTimer;
   Timer? _dasTimer;
@@ -116,12 +118,25 @@ class _GameScreenState extends State<GameScreen>
         _checkLineClear();
       });
     }
+    if (_state.onGround && !_state.gameOver) {
+      _lockAccumulated += elapsed;
+      if (_lockAccumulated >= _lockDelay) {
+        _lockAccumulated = Duration.zero;
+        setState(() {
+          _state = gameLockNow(gsv: _state);
+          _checkLineClear();
+        });
+      }
+    } else {
+      _lockAccumulated = Duration.zero;
+    }
   }
 
   void _restart() {
     setState(() {
       _state = gameInit();
       _accumulated = Duration.zero;
+      _lockAccumulated = Duration.zero;
       _prevClearedLen = 0;
       for (final b in _bursts) {
         b.controller.dispose();
@@ -141,30 +156,35 @@ class _GameScreenState extends State<GameScreen>
   void _moveLeft() {
     if (!_state.gameOver) {
       setState(() => _state = gameMoveLeft(gsv: _state));
+      _lockAccumulated = Duration.zero;
     }
   }
 
   void _moveRight() {
     if (!_state.gameOver) {
       setState(() => _state = gameMoveRight(gsv: _state));
+      _lockAccumulated = Duration.zero;
     }
   }
 
   void _rotateCw() {
     if (!_state.gameOver) {
       setState(() => _state = gameRotateCw(gsv: _state));
+      _lockAccumulated = Duration.zero;
     }
   }
 
   void _rotateCcw() {
     if (!_state.gameOver) {
       setState(() => _state = gameRotateCcw(gsv: _state));
+      _lockAccumulated = Duration.zero;
     }
   }
 
   void _softDrop() {
     if (!_state.gameOver) {
       setState(() => _state = gameSoftDrop(gsv: _state));
+      _lockAccumulated = Duration.zero;
     }
   }
 
@@ -173,6 +193,7 @@ class _GameScreenState extends State<GameScreen>
       setState(() {
         _state = gameHardDrop(gsv: _state);
       });
+      _lockAccumulated = Duration.zero;
       _spawnHardDropBurst(_currentCellSize);
     }
   }
@@ -180,6 +201,7 @@ class _GameScreenState extends State<GameScreen>
   void _holdPiece() {
     if (!_state.gameOver) {
       setState(() => _state = gameHold(gsv: _state));
+      _lockAccumulated = Duration.zero;
     }
   }
 
