@@ -3,7 +3,9 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api/game.dart';
 import 'api/simple.dart';
+import 'core/types.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'frb_generated.dart';
@@ -66,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => -1918914929;
+  int get rustContentHash => 908539395;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -78,6 +80,26 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
+  GameStateView crateApiGameGameHardDrop({required GameStateView gsv});
+
+  GameStateView crateApiGameGameHold({required GameStateView gsv});
+
+  GameStateView crateApiGameGameInit();
+
+  GameStateView crateApiGameGameMoveDown({required GameStateView gsv});
+
+  GameStateView crateApiGameGameMoveLeft({required GameStateView gsv});
+
+  GameStateView crateApiGameGameMoveRight({required GameStateView gsv});
+
+  GameStateView crateApiGameGameRotateCcw({required GameStateView gsv});
+
+  GameStateView crateApiGameGameRotateCw({required GameStateView gsv});
+
+  GameStateView crateApiGameGameSoftDrop({required GameStateView gsv});
+
+  GameStateView crateApiGameGameTick({required GameStateView gsv});
+
   String crateApiSimpleGreet({required String name});
 
   Future<void> crateApiSimpleInitApp();
@@ -92,13 +114,242 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
+  GameStateView crateApiGameGameHardDrop({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameHardDropConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameHardDropConstMeta =>
+      const TaskConstMeta(debugName: "game_hard_drop", argNames: ["gsv"]);
+
+  @override
+  GameStateView crateApiGameGameHold({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameHoldConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameHoldConstMeta =>
+      const TaskConstMeta(debugName: "game_hold", argNames: ["gsv"]);
+
+  @override
+  GameStateView crateApiGameGameInit() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameInitConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameInitConstMeta =>
+      const TaskConstMeta(debugName: "game_init", argNames: []);
+
+  @override
+  GameStateView crateApiGameGameMoveDown({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameMoveDownConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameMoveDownConstMeta =>
+      const TaskConstMeta(debugName: "game_move_down", argNames: ["gsv"]);
+
+  @override
+  GameStateView crateApiGameGameMoveLeft({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameMoveLeftConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameMoveLeftConstMeta =>
+      const TaskConstMeta(debugName: "game_move_left", argNames: ["gsv"]);
+
+  @override
+  GameStateView crateApiGameGameMoveRight({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameMoveRightConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameMoveRightConstMeta =>
+      const TaskConstMeta(debugName: "game_move_right", argNames: ["gsv"]);
+
+  @override
+  GameStateView crateApiGameGameRotateCcw({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameRotateCcwConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameRotateCcwConstMeta =>
+      const TaskConstMeta(debugName: "game_rotate_ccw", argNames: ["gsv"]);
+
+  @override
+  GameStateView crateApiGameGameRotateCw({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameRotateCwConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameRotateCwConstMeta =>
+      const TaskConstMeta(debugName: "game_rotate_cw", argNames: ["gsv"]);
+
+  @override
+  GameStateView crateApiGameGameSoftDrop({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameSoftDropConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameSoftDropConstMeta =>
+      const TaskConstMeta(debugName: "game_soft_drop", argNames: ["gsv"]);
+
+  @override
+  GameStateView crateApiGameGameTick({required GameStateView gsv}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_game_state_view(gsv, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 10)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_game_state_view,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiGameGameTickConstMeta,
+        argValues: [gsv],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGameGameTickConstMeta =>
+      const TaskConstMeta(debugName: "game_tick", argNames: ["gsv"]);
+
+  @override
   String crateApiSimpleGreet({required String name}) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(name, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 11)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_String,
@@ -123,7 +374,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 2,
+            funcId: 12,
             port: port_,
           );
         },
@@ -148,9 +399,89 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  bool dco_decode_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as bool;
+  }
+
+  @protected
+  CellType dco_decode_box_autoadd_cell_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_cell_type(raw);
+  }
+
+  @protected
+  GameStateView dco_decode_box_autoadd_game_state_view(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_game_state_view(raw);
+  }
+
+  @protected
+  CellType dco_decode_cell_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return CellType.values[raw as int];
+  }
+
+  @protected
+  GameStateView dco_decode_game_state_view(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 16)
+      throw Exception('unexpected arr length: expect 16 but see ${arr.length}');
+    return GameStateView(
+      grid: dco_decode_list_cell_type(arr[0]),
+      currentPiece: dco_decode_cell_type(arr[1]),
+      currentRotation: dco_decode_i_32(arr[2]),
+      currentX: dco_decode_i_32(arr[3]),
+      currentY: dco_decode_i_32(arr[4]),
+      ghostX: dco_decode_i_32(arr[5]),
+      ghostY: dco_decode_i_32(arr[6]),
+      holdPiece: dco_decode_opt_box_autoadd_cell_type(arr[7]),
+      canHold: dco_decode_bool(arr[8]),
+      nextQueue: dco_decode_list_cell_type(arr[9]),
+      score: dco_decode_u_32(arr[10]),
+      level: dco_decode_u_32(arr[11]),
+      lines: dco_decode_u_32(arr[12]),
+      gameOver: dco_decode_bool(arr[13]),
+      bagQueue: dco_decode_list_cell_type(arr[14]),
+      bagRng: dco_decode_i_64(arr[15]),
+    );
+  }
+
+  @protected
+  int dco_decode_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  PlatformInt64 dco_decode_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeI64(raw);
+  }
+
+  @protected
+  List<CellType> dco_decode_list_cell_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_cell_type).toList();
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  CellType? dco_decode_opt_box_autoadd_cell_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_cell_type(raw);
+  }
+
+  @protected
+  int dco_decode_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
   }
 
   @protected
@@ -173,10 +504,117 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  bool sse_decode_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint8() != 0;
+  }
+
+  @protected
+  CellType sse_decode_box_autoadd_cell_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_cell_type(deserializer));
+  }
+
+  @protected
+  GameStateView sse_decode_box_autoadd_game_state_view(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_game_state_view(deserializer));
+  }
+
+  @protected
+  CellType sse_decode_cell_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return CellType.values[inner];
+  }
+
+  @protected
+  GameStateView sse_decode_game_state_view(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_grid = sse_decode_list_cell_type(deserializer);
+    var var_currentPiece = sse_decode_cell_type(deserializer);
+    var var_currentRotation = sse_decode_i_32(deserializer);
+    var var_currentX = sse_decode_i_32(deserializer);
+    var var_currentY = sse_decode_i_32(deserializer);
+    var var_ghostX = sse_decode_i_32(deserializer);
+    var var_ghostY = sse_decode_i_32(deserializer);
+    var var_holdPiece = sse_decode_opt_box_autoadd_cell_type(deserializer);
+    var var_canHold = sse_decode_bool(deserializer);
+    var var_nextQueue = sse_decode_list_cell_type(deserializer);
+    var var_score = sse_decode_u_32(deserializer);
+    var var_level = sse_decode_u_32(deserializer);
+    var var_lines = sse_decode_u_32(deserializer);
+    var var_gameOver = sse_decode_bool(deserializer);
+    var var_bagQueue = sse_decode_list_cell_type(deserializer);
+    var var_bagRng = sse_decode_i_64(deserializer);
+    return GameStateView(
+      grid: var_grid,
+      currentPiece: var_currentPiece,
+      currentRotation: var_currentRotation,
+      currentX: var_currentX,
+      currentY: var_currentY,
+      ghostX: var_ghostX,
+      ghostY: var_ghostY,
+      holdPiece: var_holdPiece,
+      canHold: var_canHold,
+      nextQueue: var_nextQueue,
+      score: var_score,
+      level: var_level,
+      lines: var_lines,
+      gameOver: var_gameOver,
+      bagQueue: var_bagQueue,
+      bagRng: var_bagRng,
+    );
+  }
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getPlatformInt64();
+  }
+
+  @protected
+  List<CellType> sse_decode_list_cell_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <CellType>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_cell_type(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  CellType? sse_decode_opt_box_autoadd_cell_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_cell_type(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint32();
   }
 
   @protected
@@ -191,21 +629,87 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getInt32();
-  }
-
-  @protected
-  bool sse_decode_bool(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getUint8() != 0;
-  }
-
-  @protected
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
+  }
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint8(self ? 1 : 0);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_cell_type(
+    CellType self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_cell_type(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_game_state_view(
+    GameStateView self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_game_state_view(self, serializer);
+  }
+
+  @protected
+  void sse_encode_cell_type(CellType self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_game_state_view(
+    GameStateView self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_cell_type(self.grid, serializer);
+    sse_encode_cell_type(self.currentPiece, serializer);
+    sse_encode_i_32(self.currentRotation, serializer);
+    sse_encode_i_32(self.currentX, serializer);
+    sse_encode_i_32(self.currentY, serializer);
+    sse_encode_i_32(self.ghostX, serializer);
+    sse_encode_i_32(self.ghostY, serializer);
+    sse_encode_opt_box_autoadd_cell_type(self.holdPiece, serializer);
+    sse_encode_bool(self.canHold, serializer);
+    sse_encode_list_cell_type(self.nextQueue, serializer);
+    sse_encode_u_32(self.score, serializer);
+    sse_encode_u_32(self.level, serializer);
+    sse_encode_u_32(self.lines, serializer);
+    sse_encode_bool(self.gameOver, serializer);
+    sse_encode_list_cell_type(self.bagQueue, serializer);
+    sse_encode_i_64(self.bagRng, serializer);
+  }
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putPlatformInt64(self);
+  }
+
+  @protected
+  void sse_encode_list_cell_type(
+    List<CellType> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_cell_type(item, serializer);
+    }
   }
 
   @protected
@@ -219,6 +723,25 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_cell_type(
+    CellType? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_cell_type(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint32(self);
+  }
+
+  @protected
   void sse_encode_u_8(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putUint8(self);
@@ -227,17 +750,5 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   void sse_encode_unit(void self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-  }
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putInt32(self);
-  }
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putUint8(self ? 1 : 0);
   }
 }

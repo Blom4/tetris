@@ -1,26 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:tetris/src/rust/api/simple.dart';
+import 'package:tetris/screens/game_screen.dart';
 import 'package:tetris/src/rust/frb_generated.dart';
 
 Future<void> main() async {
   await RustLib.init();
-  runApp(const MyApp());
+  runApp(const TetrisApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class TetrisApp extends StatelessWidget {
+  const TetrisApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('flutter_rust_bridge quickstart')),
-        body: Center(
-          child: Text(
-            'Action: Call Rust `greet("Tom")`\nResult: `${greet(name: "Blom")}`',
-          ),
-        ),
-      ),
+      title: 'Tetris',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      home: const GameScreen(),
     );
   }
 }
