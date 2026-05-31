@@ -3,11 +3,58 @@ import 'package:tetris/src/rust/api/game.dart';
 import 'package:tetris/src/rust/core/types.dart';
 import 'package:tetris/theme/tetris_theme.dart';
 
-class BoardWidget extends StatelessWidget {
+bool _listEquals(List<int> a, List<int> b) {
+  if (a.length != b.length) return false;
+  for (int i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
+
+class BoardWidget extends StatefulWidget {
   final GameStateView state;
   final double cellSize;
 
   const BoardWidget({super.key, required this.state, this.cellSize = 28});
+
+  @override
+  State<BoardWidget> createState() => _BoardWidgetState();
+}
+
+class _BoardWidgetState extends State<BoardWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _flashCtrl;
+  List<int> _flashingRows = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _flashCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    )..addListener(() => setState(() {}));
+  }
+
+  @override
+  void didUpdateWidget(BoardWidget old) {
+    super.didUpdateWidget(old);
+    if (widget.state.clearedRows.isNotEmpty &&
+        (old.state.clearedRows.isEmpty ||
+            !_listEquals(old.state.clearedRows, widget.state.clearedRows))) {
+      _flashingRows = widget.state.clearedRows;
+      _flashCtrl.reset();
+      _flashCtrl.forward();
+    }
+    if (_flashingRows.isNotEmpty && !_flashCtrl.isAnimating) {
+      _flashingRows = [];
+    }
+  }
+
+  @override
+  void dispose() {
+    _flashCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +63,12 @@ class BoardWidget extends StatelessWidget {
     for (int y = 0; y < 20; y++) {
       for (int x = 0; x < 10; x++) {
         final idx = y * 10 + x;
-        final cellType = state.grid[idx];
+        final cellType = widget.state.grid[idx];
         Color color;
 
         if (cellType == CellType.empty) {
           if (isGhostCell(x, y)) {
-            color = cellTypeToGhostColor(state.currentPiece);
+            color = cellTypeToGhostColor(widget.state.currentPiece);
           } else {
             color = const Color(0xFF1A1A2E);
           }
@@ -31,11 +78,11 @@ class BoardWidget extends StatelessWidget {
 
         cells.add(
           Positioned(
-            left: x * cellSize,
-            top: y * cellSize,
+            left: x * widget.cellSize,
+            top: y * widget.cellSize,
             child: Container(
-              width: cellSize,
-              height: cellSize,
+              width: widget.cellSize,
+              height: widget.cellSize,
               decoration: BoxDecoration(
                 color: color,
                 border: cellType != CellType.empty || isGhostCell(x, y)
@@ -54,26 +101,48 @@ class BoardWidget extends StatelessWidget {
       }
     }
 
+    // Flash overlay for cleared rows
+    for (final row in _flashingRows) {
+      final flashOpacity = _flashCtrl.isAnimating
+          ? (1.0 - _flashCtrl.value) * 0.8
+          : 0.0;
+      if (flashOpacity > 0) {
+        cells.add(
+          Positioned(
+            left: 0,
+            top: row * widget.cellSize,
+            child: IgnorePointer(
+              child: Container(
+                width: 10 * widget.cellSize,
+                height: widget.cellSize,
+                color: Colors.white.withValues(alpha: flashOpacity),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.white24, width: 2),
         borderRadius: BorderRadius.circular(4),
       ),
       child: SizedBox(
-        width: 10 * cellSize,
-        height: 20 * cellSize,
+        width: 10 * widget.cellSize,
+        height: 20 * widget.cellSize,
         child: Stack(children: cells),
       ),
     );
   }
 
   bool isGhostCell(int x, int y) {
-    final piece = state.currentPiece;
-    final rot = state.currentRotation;
-    final gx = state.ghostX;
-    final gy = state.ghostY;
-    final cx = state.currentX;
-    final cy = state.currentY;
+    final piece = widget.state.currentPiece;
+    final rot = widget.state.currentRotation;
+    final gx = widget.state.ghostX;
+    final gy = widget.state.ghostY;
+    final cx = widget.state.currentX;
+    final cy = widget.state.currentY;
 
     if (gx == cx && gy == cy) return false;
 

@@ -58,6 +58,7 @@ class GameStateView {
   final bool gameOver;
   final List<CellType> bagQueue;
   final PlatformInt64 bagRng;
+  final Int32List clearedRows;
 
   const GameStateView({
     required this.grid,
@@ -76,6 +77,7 @@ class GameStateView {
     required this.gameOver,
     required this.bagQueue,
     required this.bagRng,
+    required this.clearedRows,
   });
 
   @override
@@ -95,7 +97,8 @@ class GameStateView {
       lines.hashCode ^
       gameOver.hashCode ^
       bagQueue.hashCode ^
-      bagRng.hashCode;
+      bagRng.hashCode ^
+      clearedRows.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -117,5 +120,6 @@ class GameStateView {
           lines == other.lines &&
           gameOver == other.gameOver &&
           bagQueue == other.bagQueue &&
-          bagRng == other.bagRng;
+          bagRng == other.bagRng &&
+          clearedRows == other.clearedRows;
 }

@@ -464,6 +464,7 @@ impl SseDecode for crate::api::game::GameStateView {
         let mut var_gameOver = <bool>::sse_decode(deserializer);
         let mut var_bagQueue = <Vec<crate::core::types::CellType>>::sse_decode(deserializer);
         let mut var_bagRng = <i64>::sse_decode(deserializer);
+        let mut var_clearedRows = <Vec<i32>>::sse_decode(deserializer);
         return crate::api::game::GameStateView {
             grid: var_grid,
             current_piece: var_currentPiece,
@@ -481,6 +482,7 @@ impl SseDecode for crate::api::game::GameStateView {
             game_over: var_gameOver,
             bag_queue: var_bagQueue,
             bag_rng: var_bagRng,
+            cleared_rows: var_clearedRows,
         };
     }
 }
@@ -506,6 +508,18 @@ impl SseDecode for Vec<crate::core::types::CellType> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::core::types::CellType>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<i32>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -636,6 +650,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::game::GameStateView {
             self.game_over.into_into_dart().into_dart(),
             self.bag_queue.into_into_dart().into_dart(),
             self.bag_rng.into_into_dart().into_dart(),
+            self.cleared_rows.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -707,6 +722,7 @@ impl SseEncode for crate::api::game::GameStateView {
         <bool>::sse_encode(self.game_over, serializer);
         <Vec<crate::core::types::CellType>>::sse_encode(self.bag_queue, serializer);
         <i64>::sse_encode(self.bag_rng, serializer);
+        <Vec<i32>>::sse_encode(self.cleared_rows, serializer);
     }
 }
 
@@ -730,6 +746,16 @@ impl SseEncode for Vec<crate::core::types::CellType> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::core::types::CellType>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <i32>::sse_encode(item, serializer);
         }
     }
 }

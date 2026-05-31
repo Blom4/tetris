@@ -35,17 +35,17 @@ pub fn place(grid: &mut Grid, piece: CellType, rotation: usize, pos: Position) {
     }
 }
 
-pub fn clear_lines(grid: &mut Grid) -> usize {
-    let mut cleared = 0;
+pub fn clear_lines(grid: &mut Grid) -> Vec<usize> {
+    let mut cleared = Vec::new();
     let mut y = HEIGHT as i32 - 1;
     while y >= 0 {
         let row = y as usize;
         if grid[row].iter().all(|&c| c != CellType::Empty) {
+            cleared.push(row);
             for r in (1..=row).rev() {
                 grid[r] = grid[r - 1];
             }
             grid[0] = [CellType::Empty; WIDTH];
-            cleared += 1;
         } else {
             y -= 1;
         }
@@ -143,7 +143,7 @@ mod tests {
     #[test]
     fn test_clear_one_line() {
         let mut g = filled_row();
-        assert_eq!(clear_lines(&mut g), 1);
+        assert_eq!(clear_lines(&mut g).len(), 1);
         // Top row should be empty now
         assert!(g[0].iter().all(|&c| c == CellType::Empty));
     }
@@ -156,7 +156,7 @@ mod tests {
                 g[y][x] = CellType::I;
             }
         }
-        assert_eq!(clear_lines(&mut g), 4);
+        assert_eq!(clear_lines(&mut g).len(), 4);
     }
 
     #[test]
@@ -166,7 +166,7 @@ mod tests {
             g[HEIGHT - 1][x] = CellType::I;
         }
         g[HEIGHT - 1][5] = CellType::Empty; // gap
-        assert_eq!(clear_lines(&mut g), 0);
+        assert_eq!(clear_lines(&mut g).len(), 0);
     }
 
     #[test]
@@ -178,7 +178,7 @@ mod tests {
         }
         // Place a T piece above it
         place(&mut g, CellType::T, 0, Position { x: 3, y: HEIGHT as i32 - 3 });
-        assert_eq!(clear_lines(&mut g), 1);
+        assert_eq!(clear_lines(&mut g).len(), 1);
         // T piece should have shifted down
         assert_eq!(g[HEIGHT - 1][3], CellType::T);
         assert_eq!(g[HEIGHT - 1][4], CellType::T);

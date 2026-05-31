@@ -426,8 +426,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   GameStateView dco_decode_game_state_view(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 16)
-      throw Exception('unexpected arr length: expect 16 but see ${arr.length}');
+    if (arr.length != 17)
+      throw Exception('unexpected arr length: expect 17 but see ${arr.length}');
     return GameStateView(
       grid: dco_decode_list_cell_type(arr[0]),
       currentPiece: dco_decode_cell_type(arr[1]),
@@ -445,6 +445,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       gameOver: dco_decode_bool(arr[13]),
       bagQueue: dco_decode_list_cell_type(arr[14]),
       bagRng: dco_decode_i_64(arr[15]),
+      clearedRows: dco_decode_list_prim_i_32_strict(arr[16]),
     );
   }
 
@@ -464,6 +465,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<CellType> dco_decode_list_cell_type(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_cell_type).toList();
+  }
+
+  @protected
+  Int32List dco_decode_list_prim_i_32_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Int32List;
   }
 
   @protected
@@ -549,6 +556,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_gameOver = sse_decode_bool(deserializer);
     var var_bagQueue = sse_decode_list_cell_type(deserializer);
     var var_bagRng = sse_decode_i_64(deserializer);
+    var var_clearedRows = sse_decode_list_prim_i_32_strict(deserializer);
     return GameStateView(
       grid: var_grid,
       currentPiece: var_currentPiece,
@@ -566,6 +574,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       gameOver: var_gameOver,
       bagQueue: var_bagQueue,
       bagRng: var_bagRng,
+      clearedRows: var_clearedRows,
     );
   }
 
@@ -591,6 +600,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       ans_.add(sse_decode_cell_type(deserializer));
     }
     return ans_;
+  }
+
+  @protected
+  Int32List sse_decode_list_prim_i_32_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getInt32List(len_);
   }
 
   @protected
@@ -686,6 +702,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self.gameOver, serializer);
     sse_encode_list_cell_type(self.bagQueue, serializer);
     sse_encode_i_64(self.bagRng, serializer);
+    sse_encode_list_prim_i_32_strict(self.clearedRows, serializer);
   }
 
   @protected
@@ -710,6 +727,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     for (final item in self) {
       sse_encode_cell_type(item, serializer);
     }
+  }
+
+  @protected
+  void sse_encode_list_prim_i_32_strict(
+    Int32List self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putInt32List(self);
   }
 
   @protected

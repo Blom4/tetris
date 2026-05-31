@@ -20,6 +20,7 @@ pub struct GameState {
     pub lines: u32,
     pub game_over: bool,
     pub bag: Bag,
+    pub cleared_rows: Vec<usize>,
 }
 
 impl Default for GameState {
@@ -51,6 +52,7 @@ impl GameState {
             lines: 0,
             game_over: false,
             bag,
+            cleared_rows: Vec::new(),
         }
     }
 
@@ -67,12 +69,12 @@ impl GameState {
             self.current_rotation,
             self.current_pos,
         );
-        let cleared = clear_lines(&mut self.grid);
-        if cleared > 0 {
-            let n = cleared as u32;
-            self.lines += n;
-            self.score += line_clear_score(n, self.level, t_spin);
+        let cleared_rows = clear_lines(&mut self.grid);
+        if !cleared_rows.is_empty() {
+            self.lines += cleared_rows.len() as u32;
+            self.score += line_clear_score(cleared_rows.len() as u32, self.level, t_spin);
             self.level = level_from_lines(self.lines);
+            self.cleared_rows = cleared_rows;
         }
         self.spawn_piece();
     }
@@ -452,7 +454,7 @@ mod tests {
         for x in 0..WIDTH {
             gs.grid[HEIGHT - 1][x] = CellType::I;
         }
-        let cleared = clear_lines(&mut gs.grid);
+        let cleared = clear_lines(&mut gs.grid).len();
         assert_eq!(cleared, 1);
         gs.lines += cleared as u32;
         gs.score += line_clear_score(cleared as u32, gs.level, false);

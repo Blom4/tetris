@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +25,11 @@ class _GameScreenState extends State<GameScreen>
   Timer? _dasTimer;
   VoidCallback? _repeatAction;
 
+  final List<_ParticleBurst> _bursts = [];
+  final _rng = Random();
+  int _prevClearedLen = 0;
+  double _lastCellSize = 28;
+
   @override
   void initState() {
     super.initState();
@@ -35,7 +41,46 @@ class _GameScreenState extends State<GameScreen>
   void dispose() {
     _ticker.dispose();
     _cancelRepeat();
+    for (final b in _bursts) {
+      b.controller.dispose();
+    }
     super.dispose();
+  }
+
+  void _spawnBurst(Offset center, Color color) {
+    final ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _bursts.add(_ParticleBurst(controller: ctrl, center: center, color: color));
+    ctrl.addListener(() => setState(() {}));
+    ctrl.forward().then((_) {
+      ctrl.dispose();
+      _bursts.removeWhere((b) => b.controller == ctrl);
+    });
+  }
+
+  void _spawnLineClearBursts(double cellSize) {
+    for (final row in _state.clearedRows) {
+      final center = Offset(
+        5 * cellSize,
+        row * cellSize + cellSize / 2,
+      );
+      _spawnBurst(center, Colors.white);
+    }
+  }
+
+  void _spawnHardDropBurst(double cellSize) {
+    final piece = _state.currentPiece;
+    final rot = _state.currentRotation;
+    final cells = _pieceCells(piece, rot);
+    for (final c in cells) {
+      final center = Offset(
+        (c.$1 + _state.currentX.toDouble() + 0.5) * cellSize,
+        (c.$2 + _state.currentY.toDouble() + 0.5) * cellSize,
+      );
+      _spawnBurst(center, cellTypeToColor(piece));
+    }
   }
 
   void _cancelRepeat() {
@@ -68,6 +113,7 @@ class _GameScreenState extends State<GameScreen>
       _accumulated -= _dropInterval;
       setState(() {
         _state = gameTick(gsv: _state);
+        _checkLineClear();
       });
     }
   }
@@ -76,7 +122,20 @@ class _GameScreenState extends State<GameScreen>
     setState(() {
       _state = gameInit();
       _accumulated = Duration.zero;
+      _prevClearedLen = 0;
+      for (final b in _bursts) {
+        b.controller.dispose();
+      }
+      _bursts.clear();
     });
+  }
+
+  void _checkLineClear() {
+    if (_state.clearedRows.length > _prevClearedLen) {
+      final cellSize = _currentCellSize;
+      _spawnLineClearBursts(cellSize);
+    }
+    _prevClearedLen = _state.clearedRows.length;
   }
 
   void _moveLeft() {
@@ -111,7 +170,10 @@ class _GameScreenState extends State<GameScreen>
 
   void _hardDrop() {
     if (!_state.gameOver) {
-      setState(() => _state = gameHardDrop(gsv: _state));
+      setState(() {
+        _state = gameHardDrop(gsv: _state);
+      });
+      _spawnHardDropBurst(_currentCellSize);
     }
   }
 
@@ -148,6 +210,8 @@ class _GameScreenState extends State<GameScreen>
     }
   }
 
+  // ─── Layout ──────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,18 +244,20 @@ class _GameScreenState extends State<GameScreen>
 
   // ─── Portrait ───────────────────────────────────────────────────
 
+  double get _currentCellSize => _lastCellSize;
+
   Widget _portraitBody(double width, double height) {
     const controlsHeight = 136.0;
     const sidePanelWidth = 72.0;
     const gap = 4.0;
 
     final availableBoardHeight = height - controlsHeight;
-    final cellSize = (availableBoardHeight / 20).floorToDouble().clamp(12.0, 32.0);
+    final cellSize =
+        (availableBoardHeight / 20).floorToDouble().clamp(12.0, 32.0);
+    _lastCellSize = cellSize;
 
     final boardWidth = 10 * cellSize;
     final totalWidth = sidePanelWidth + gap + boardWidth + gap + sidePanelWidth;
-
-    final board = BoardWidget(state: _state, cellSize: cellSize);
 
     return Column(
       children: [
@@ -200,9 +266,9 @@ class _GameScreenState extends State<GameScreen>
             child: totalWidth > width
                 ? FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: _gameRow(board, cellSize, sidePanelWidth, gap),
+                    child: _gameRow(cellSize, sidePanelWidth, gap),
                   )
-                : _gameRow(board, cellSize, sidePanelWidth, gap),
+                : _gameRow(cellSize, sidePanelWidth, gap),
           ),
         ),
         SizedBox(
@@ -213,7 +279,8 @@ class _GameScreenState extends State<GameScreen>
     );
   }
 
-  Widget _gameRow(Widget board, double cellSize, double pw, double gap) {
+  Widget _gameRow(double cellSize, double pw, double gap) {
+    final board = _boardWithOverlay(cellSize);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -236,7 +303,8 @@ class _GameScreenState extends State<GameScreen>
                               fontSize: 18,
                               fontWeight: FontWeight.bold)),
                       Text('Tap to restart',
-                          style: TextStyle(color: Colors.white38, fontSize: 12)),
+                          style:
+                              TextStyle(color: Colors.white38, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -249,6 +317,51 @@ class _GameScreenState extends State<GameScreen>
     );
   }
 
+  Widget _boardWithOverlay(double cellSize) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            BoardWidget(state: _state, cellSize: cellSize),
+            ..._bursts.map((b) => _buildBurstWidget(b, cellSize)),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildBurstWidget(_ParticleBurst burst, double cellSize) {
+    final progress = burst.controller.value;
+    if (progress >= 1) return const SizedBox.shrink();
+
+    final particles = <Widget>[];
+    for (int i = 0; i < 8; i++) {
+      final angle = (i / 8) * 2 * pi + progress * 2;
+      final dist = 20 * progress * (1 + _rng.nextDouble());
+      final dx = cos(angle) * dist;
+      final dy = sin(angle) * dist;
+      final opacity = (1 - progress) * 0.9;
+      final size = 3.0 * (1 - progress * 0.5);
+
+      particles.add(
+        Positioned(
+          left: burst.center.dx + dx - size / 2,
+          top: burst.center.dy + dy - size / 2,
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: burst.color.withValues(alpha: opacity),
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Stack(children: particles);
+  }
+
   // ─── Landscape ──────────────────────────────────────────────────
 
   Widget _landscapeBody(double width, double height) {
@@ -256,7 +369,7 @@ class _GameScreenState extends State<GameScreen>
     const gap = 4.0;
 
     final cellSize = (height / 20).floorToDouble().clamp(12.0, 32.0);
-    final board = BoardWidget(state: _state, cellSize: cellSize);
+    _lastCellSize = cellSize;
 
     return Row(
       children: [
@@ -272,7 +385,7 @@ class _GameScreenState extends State<GameScreen>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    board,
+                    _boardWithOverlay(cellSize),
                     if (_state.gameOver)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -376,7 +489,10 @@ class _GameScreenState extends State<GameScreen>
       children: [
         _label('HOLD'),
         const SizedBox(height: 4),
-        _miniature(_state.holdPiece, _state.canHold, c),
+        Opacity(
+          opacity: _state.canHold ? 1.0 : 0.4,
+          child: _miniature(_state.holdPiece, _state.canHold, c),
+        ),
       ],
     );
   }
@@ -415,7 +531,9 @@ class _GameScreenState extends State<GameScreen>
               style: const TextStyle(color: Colors.white38, fontSize: 10)),
           Text(value,
               style: const TextStyle(
-                  color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
         ],
       );
 
@@ -459,6 +577,17 @@ class _GameScreenState extends State<GameScreen>
           width: 4 * c, height: 3 * c, child: Stack(children: cells)),
     );
   }
+}
+
+class _ParticleBurst {
+  final AnimationController controller;
+  final Offset center;
+  final Color color;
+  _ParticleBurst({
+    required this.controller,
+    required this.center,
+    required this.color,
+  });
 }
 
 class _Column extends StatelessWidget {

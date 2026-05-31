@@ -22,6 +22,7 @@ pub struct GameStateView {
     pub game_over: bool,
     pub bag_queue: Vec<CellType>,
     pub bag_rng: i64,
+    pub cleared_rows: Vec<i32>,
 }
 
 fn flatten_grid(grid: &Grid) -> Vec<CellType> {
@@ -61,6 +62,7 @@ impl From<GameState> for GameStateView {
             game_over: gs.game_over,
             bag_queue: gs.bag.remaining().to_vec(),
             bag_rng: gs.bag.rng_seed() as i64,
+            cleared_rows: gs.cleared_rows.iter().map(|&r| r as i32).collect(),
         }
     }
 }
@@ -87,6 +89,7 @@ impl From<GameStateView> for GameState {
             lines: v.lines,
             game_over: v.game_over,
             bag: Bag::from_parts(v.bag_queue, v.bag_rng as u64),
+            cleared_rows: Vec::new(),
         }
     }
 }
